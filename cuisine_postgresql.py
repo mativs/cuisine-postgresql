@@ -12,8 +12,10 @@ __maintainer__ = u'Atamert \xd6l\xe7gen'
 __email__ = 'muhuk@muhuk.com'
 __all__ = [
     'postgresql_database_check',
+    'postgresql_database_drop',
     'postgresql_database_create',
     'postgresql_database_ensure',
+    'postgresql_database_reset'
     'postgresql_role_check',
     'postgresql_role_create',
     'postgresql_role_ensure',
@@ -42,6 +44,13 @@ def postgresql_database_check(database_name):
     with settings(hide('everything'), warn_only=True):
         return run_as_postgres(cmd.format(database_name)) == '1'
 
+@require_fabric
+def postgresql_database_drop(database_name):
+    cmd = 'dropdb -U postgres {database_name}'.format(
+        database_name=database_name,
+    )
+    run_as_postgres(cmd)
+
 
 @require_fabric
 def postgresql_database_create(database_name,
@@ -63,6 +72,23 @@ def postgresql_database_create(database_name,
     )
     run_as_postgres(cmd)
 
+@require_fabric
+def postgresql_database_reset(database_name,
+                              tablespace=None,
+                              locale=None,
+                              encoding=None,
+                              owner=None,
+                              template=None):
+    if postgresql_database_check(database_name):
+        puts('Database "{0}" exists. Droping...'.format(database_name))
+        postgresql_database_drop(database_name)
+    puts('Database "{0}" dropped. Creating...'.format(database_name))
+    postgresql_database_create(database_name,
+                               tablespace,
+                               locale,
+                               encoding,
+                               owner,
+                               template)
 
 @require_fabric
 def postgresql_database_ensure(database_name,

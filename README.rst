@@ -17,7 +17,8 @@ Usage
 ::
 
     from cuisine_postgresql import (postgresql_role_ensure,
-                                    postgresql_database_ensure)
+                                    postgresql_database_ensure,
+                                    postgresql_database_reset)
 
 
     @task
@@ -27,3 +28,10 @@ Usage
                                        owner='user',
                                        template='template0',
                                        encoding='UTF8')
+
+    @task
+    def reset_database():
+            postgresql_database_reset('database',
+                                       owner='user',
+                                       template='template0',
+                                       encoding='UTF8') 
